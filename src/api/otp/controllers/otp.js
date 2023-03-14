@@ -4,7 +4,10 @@ module.exports = {
   generateOTP: async (ctx, next) => {
     try {
       const generatedOTP = await strapi.service("api::otp.otp").generateOTP(ctx.request.body.number);
-      ctx.body = generatedOTP;
+      let data={
+        otp : generatedOTP,
+      };
+      ctx.body = data;
     } catch (err) {
       ctx.body = err;
     }
@@ -19,16 +22,27 @@ module.exports = {
         const userRegister = await strapi.service("api::otp.otp").checkSignup(number);
         if (userRegister) {
           const token = await strapi.service("api::otp.otp").generateToken(number);
-          ctx.body = "Login with jwt token : "+token;
+          let data={
+            message : "Login with jwt token",
+            token : token,
+          };
+          ctx.body = data;
         }
         else {
           await strapi.service("api::otp.otp").signup(number);
           const token = await strapi.service("api::otp.otp").generateToken(number);
-          ctx.body = "Signup & Login with jwt token : "+token;
+          let data={
+            message : "Signup & Login with jwt token",
+            token : token,
+          };
+          ctx.body = data;
         }
       }
       else {
-        ctx.body = "Invalid OTP";
+        let data={
+          message : "Invalid OTP",
+        };
+        ctx.body = data;
       }
     } catch (err) {
       ctx.body = err;
