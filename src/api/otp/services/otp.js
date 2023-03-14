@@ -15,6 +15,7 @@ module.exports = {
             return err;
         }
     },
+    
 
     verifyOTP: async (number,otp) => {
         try {
