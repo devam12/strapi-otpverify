@@ -19,7 +19,7 @@ module.exports = {
       let otp = ctx.request.body.otp;
       let otpMatched = await strapi.service("api::otp.otp").verifyOTP(number,otp);
       if (otpMatched) {
-        const userRegister = await strapi.service("api::otp.otp").checkSignup(number);
+        let userRegister = await strapi.service("api::otp.otp").checkSignup(number);
         if (userRegister) {
           const token = await strapi.service("api::otp.otp").generateToken(number);
           let data={
