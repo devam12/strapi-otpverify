@@ -15,14 +15,13 @@ module.exports = {
             return err;
         }
     },
-    
 
-    verifyOTP: async (number,otp) => {
+    verifyOTP: async (number, otp) => {
         try {
             let url = `https://2factor.in/API/V1/${process.env.OTPAPIKEY}/SMS/VERIFY3/${number}/${otp}`;
             let details = await fetch(url);
             let data = await details.json();
-            if(data.Status=="Success"){
+            if (data.Status == "Success") {
                 return true;
             }
             return false;
@@ -34,17 +33,13 @@ module.exports = {
 
     signup: async (number) => {
         try {
-            console.log(number);
-            const hashPassword = await bcrypt.hash(number,10);
-            console.log(hashPassword);
-            let entry = await strapi.entityService.create('api::register.register', {
-                data: {
-                    number: number,
-                    password : hashPassword,
-                },
+            const hashPassword = await bcrypt.hash(number, 10);
+            let entry = await strapi.plugins['users-permissions'].services.user.add({
+                email : `${number}@gmail.com`,
+                mobilenumber: number,
+                password: hashPassword,
+                username : number
             });
-            console.log(hashPassword);
-            console.log(entry);
             return entry;
         }
         catch (err) {
@@ -54,11 +49,11 @@ module.exports = {
 
     checkSignup: async (number) => {
         try {
-            let entry =  await strapi.db.query('api::register.register').findOne({
-                select: ['number'],
-                where: { number: number },
+            let entry = await strapi.db.query('api::register.register').findOne({
+                select: ['mobilenumber'],
+                where: { mobilenumber: number },
             });
-            if(entry===null){
+            if (entry === null) {
                 return false;
             }
             return true;
@@ -68,17 +63,17 @@ module.exports = {
         }
     },
 
-    generateToken : async (number) => {
-    try {
-        // let options = {
-        //     expiresIn: "1h",
-        // }
-        const token = jwt.sign({ number }, process.env.TOKENCODE);
-        return token;
+    generateToken: async (number) => {
+        try {
+            // let options = {
+            //     expiresIn: "1h",
+            // }
+            const token = jwt.sign({ number }, process.env.TOKENCODE);
+            return token;
+        }
+        catch (error) {
+            console.log(error.message("Invalid token"));
+        }
     }
-    catch (error) {
-        console.log(error.message("Invalid token"));
-    }
-}
 
 };
