@@ -49,9 +49,9 @@ module.exports = {
 
     checkSignup: async (number) => {
         try {
-            let entry = await strapi.db.query('api::register.register').findOne({
-                select: ['mobilenumber'],
-                where: { mobilenumber: number },
+            let entry = await strapi.query('plugin::users-permissions.user').findOne({ 
+                select: ['email','mobilenumber','username'],
+                where: { mobilenumber : number },
             });
             if (entry === null) {
                 return false;
@@ -59,6 +59,7 @@ module.exports = {
             return true;
         }
         catch (err) {
+            console.log(err);
             return err;
         }
     },

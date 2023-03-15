@@ -4,8 +4,8 @@ module.exports = {
   generateOTP: async (ctx, next) => {
     try {
       const generatedOTP = await strapi.service("api::otp.otp").generateOTP(ctx.request.body.number);
-      let data={
-        otp : generatedOTP,
+      let data = {
+        otp: generatedOTP,
       };
       ctx.body = data;
     } catch (err) {
@@ -17,30 +17,30 @@ module.exports = {
     try {
       let number = ctx.request.body.number;
       let otp = ctx.request.body.otp;
-      let otpMatched = await strapi.service("api::otp.otp").verifyOTP(number,otp);
+      let otpMatched = await strapi.service("api::otp.otp").verifyOTP(number, otp);
       if (otpMatched) {
         let userRegister = await strapi.service("api::otp.otp").checkSignup(number);
         if (userRegister) {
           const token = await strapi.service("api::otp.otp").generateToken(number);
-          let data={
-            message : "Login with jwt token",
-            token : token,
+          let data = {
+            message: "Login with jwt token",
+            token: token,
           };
           ctx.body = data;
         }
         else {
           await strapi.service("api::otp.otp").signup(number);
           const token = await strapi.service("api::otp.otp").generateToken(number);
-          let data={
-            message : "Signup & Login with jwt token",
-            token : token,
+          let data = {
+            message: "Signup & Login with jwt token",
+            token: token,
           };
           ctx.body = data;
         }
       }
       else {
-        let data={
-          message : "Invalid OTP",
+        let data = {
+          message: "Invalid OTP",
         };
         ctx.body = data;
       }
@@ -51,8 +51,17 @@ module.exports = {
 
   signup: async (ctx, next) => {
     try {
-      const signup = await strapi.service("api::otp.otp").signup(ctx.request.body.number);
-      ctx.body = signup;
+      let userRegister = await strapi.service("api::otp.otp").checkSignup(ctx.request.body.number);
+      if (userRegister) {
+        let data = {
+          message: "Already Register User Please Login",
+        };
+        ctx.body = data;
+      }
+      else {
+        const signup = await strapi.service("api::otp.otp").signup(ctx.request.body.number);
+        ctx.body = signup;
+      }
     } catch (err) {
       ctx.body = err;
     }

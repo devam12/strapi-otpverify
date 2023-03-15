@@ -67,7 +67,8 @@
       "type": "integer",
       "minLength": 3,
       "unique": true,
-      "required": true
+      "required": true,
+      "configurable": false
     }
   }
 }
