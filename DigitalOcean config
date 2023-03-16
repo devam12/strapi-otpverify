@@ -7,3 +7,8 @@ db password
 host
 env file data
 host - 0.0.0.0
+
+
+// "build:win": "cross-env NODE_ENV=production npm run build",
+// "start:win": "cross-env NODE_ENV=production npm start"
+

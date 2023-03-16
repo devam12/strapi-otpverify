@@ -17,7 +17,6 @@ module.exports = {
 
     verifyOTP: async (number, otp) => {
         try {
-            console.log("verify OTP");
             let url = `https://2factor.in/API/V1/${process.env.OTPAPIKEY}/SMS/VERIFY3/${number}/${otp}`;
             let details = await fetch(url);
             let data = await details.json();
@@ -33,8 +32,6 @@ module.exports = {
 
     checkSignup: async (number) => {
         try {
-            
-            console.log("check signup");
             let entry = await strapi.query('plugin::users-permissions.user').findOne({
                 select: ['email', 'mobilenumber', 'username'],
                 where: { mobilenumber: number },
@@ -52,7 +49,6 @@ module.exports = {
 
     signup: async (number) => {
         try {
-            console.log("Signup");
             let hashPassword = crypto.createHmac('sha1', process.env.PASSWORD_SECRET).update(number).digest('hex');
             console.log(hashPassword);
             let entry = await strapi.plugins['users-permissions'].services.user.add({
@@ -81,11 +77,10 @@ module.exports = {
                 credentials: "include",
                 withCredentials: true,
             };
-            const response = await axios.post("http://127.0.0.1:1337/api/auth/local",
+            const response = await axios.post(`${process.env.API}`+"api/auth/local",
                 data,
                 options
             );
-            console.log(response.data);
             return response.data;
         }
         catch (error) {
