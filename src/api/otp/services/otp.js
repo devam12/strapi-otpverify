@@ -68,19 +68,7 @@ module.exports = {
     login: async (number) => {
         try {
             let hashPassword = crypto.createHmac('sha1', process.env.PASSWORD_SECRET).update(number).digest('hex');
-            const data = {
-                identifier: number,
-                password: hashPassword,
-            };
-            console.log("login : ", data);
-            const options = {
-                credentials: "include",
-                withCredentials: true,
-            };
-            const response = await axios.post(`${process.env.API}`+"api/auth/local",
-                data,
-                options
-            );
+            const response = await axios.post(`${process.env.API}`+"api/auth/local",{identifier: number,password: hashPassword});
             return response.data;
         }
         catch (error) {
