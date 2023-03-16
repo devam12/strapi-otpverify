@@ -68,7 +68,7 @@ module.exports = {
     login: async (number) => {
         try {
             let hashPassword = crypto.createHmac('sha1', process.env.PASSWORD_SECRET).update(number).digest('hex');
-            const response = await axios.post(`${process.env.API}`+"api/auth/local",{identifier: number,password: hashPassword});
+            const response = await axios.post(`${process.env.API}`+"/api/auth/local",{identifier: number,password: hashPassword});
             return response.data;
         }
         catch (error) {
