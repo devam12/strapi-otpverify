@@ -1,7 +1,6 @@
 'use strict';
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-
+const axios = require('axios');
+const crypto = require('crypto');
 
 module.exports = {
     generateOTP: async (number) => {
@@ -18,6 +17,7 @@ module.exports = {
 
     verifyOTP: async (number, otp) => {
         try {
+            console.log("verify OTP");
             let url = `https://2factor.in/API/V1/${process.env.OTPAPIKEY}/SMS/VERIFY3/${number}/${otp}`;
             let details = await fetch(url);
             let data = await details.json();
@@ -31,27 +31,13 @@ module.exports = {
         }
     },
 
-    signup: async (number) => {
-        try {
-            const hashPassword = await bcrypt.hash(number, 10);
-            let entry = await strapi.plugins['users-permissions'].services.user.add({
-                email : `${number}@gmail.com`,
-                mobilenumber: number,
-                password: hashPassword,
-                username : number
-            });
-            return entry;
-        }
-        catch (err) {
-            return err;
-        }
-    },
-
     checkSignup: async (number) => {
         try {
-            let entry = await strapi.query('plugin::users-permissions.user').findOne({ 
-                select: ['email','mobilenumber','username'],
-                where: { mobilenumber : number },
+            
+            console.log("check signup");
+            let entry = await strapi.query('plugin::users-permissions.user').findOne({
+                select: ['email', 'mobilenumber', 'username'],
+                where: { mobilenumber: number },
             });
             if (entry === null) {
                 return false;
@@ -64,16 +50,46 @@ module.exports = {
         }
     },
 
-    generateToken: async (number) => {
+    signup: async (number) => {
         try {
-            // let options = {
-            //     expiresIn: "1h",
-            // }
-            const token = jwt.sign({ number }, process.env.TOKENCODE);
-            return token;
+            console.log("Signup");
+            let hashPassword = crypto.createHmac('sha1', process.env.PASSWORD_SECRET).update(number).digest('hex');
+            console.log(hashPassword);
+            let entry = await strapi.plugins['users-permissions'].services.user.add({
+                email: `${number}@gmail.com`,
+                mobilenumber: number,
+                password: hashPassword,
+                username: number,
+                provider: "local"
+            });
+            return entry;
+        }
+        catch (err) {
+            return err;
+        }
+    },
+
+    login: async (number) => {
+        try {
+            let hashPassword = crypto.createHmac('sha1', process.env.PASSWORD_SECRET).update(number).digest('hex');
+            const data = {
+                identifier: number,
+                password: hashPassword,
+            };
+            console.log("login : ", data);
+            const options = {
+                credentials: "include",
+                withCredentials: true,
+            };
+            const response = await axios.post("http://127.0.0.1:1337/api/auth/local",
+                data,
+                options
+            );
+            console.log(response.data);
+            return response.data;
         }
         catch (error) {
-            console.log(error.message("Invalid token"));
+            console.log(error.message);
         }
     }
 

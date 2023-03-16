@@ -1,0 +1,9 @@
+NODE_ENV = Production
+databse host
+database port
+db name
+db username
+db password
+host
+env file data
+host - 0.0.0.0

@@ -20,23 +20,15 @@ module.exports = {
       let otpMatched = await strapi.service("api::otp.otp").verifyOTP(number, otp);
       if (otpMatched) {
         let userRegister = await strapi.service("api::otp.otp").checkSignup(number);
-        if (userRegister) {
-          const token = await strapi.service("api::otp.otp").generateToken(number);
-          let data = {
-            message: "Login with jwt token",
-            token: token,
-          };
-          ctx.body = data;
-        }
-        else {
+        if (!userRegister) {
           await strapi.service("api::otp.otp").signup(number);
-          const token = await strapi.service("api::otp.otp").generateToken(number);
-          let data = {
-            message: "Signup & Login with jwt token",
-            token: token,
-          };
-          ctx.body = data;
         }
+        const user = await strapi.service("api::otp.otp").login(number);
+        let data = {
+          message: "Login with jwt token",
+          token: user.jwt,
+        };
+        ctx.body = data;
       }
       else {
         let data = {
@@ -54,7 +46,7 @@ module.exports = {
       let userRegister = await strapi.service("api::otp.otp").checkSignup(ctx.request.body.number);
       if (userRegister) {
         let data = {
-          message: "Already Register User Please Login",
+          message: "Already Registered User Please Login",
         };
         ctx.body = data;
       }
